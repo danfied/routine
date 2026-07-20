@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Routine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF7F2;
+    --ink: #2B2A28;
+    --ink-soft: #726C60;
+    --line: #E4DDD0;
+    --am: #E3A857;
+    --am-soft: #F6E3C2;
+    --pm: #444B8C;
+    --pm-soft: #DADCEF;
+    --accent: var(--am);
+    --accent-soft: var(--am-soft);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Karla', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body.pm-active {
+    --accent: var(--pm);
+    --accent-soft: var(--pm-soft);
+  }
+
+  .page {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+    min-height: 100vh;
+  }
+
+  .greeting {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    transition: color 0.4s ease;
+  }
+
+  .date {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin: 0 0 26px;
+  }
+
+  /* Arc progress signature element */
+  .arc-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .arc-wrap svg { width: 100%; max-width: 320px; height: auto; }
+
+  .arc-bg { fill: none; stroke: var(--line); stroke-width: 8; }
+  .arc-fg {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1), stroke 0.4s ease;
+  }
+
+  .arc-label {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .arc-count {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .arc-total {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    background: #F0EAE0;
+    border-radius: 999px;
+    padding: 4px;
+    margin: 22px 0 30px;
+  }
+
+  .tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 0;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .tab.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Checklist */
+  .list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 4px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .item:last-child { border-bottom: none; }
+
+  .step {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .check {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    position: relative;
+    transition: border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .check svg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0);
+    width: 13px; height: 13px;
+    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .item.done .check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .item.done .check svg { transform: translate(-50%,-50%) scale(1); }
+  .item.done .step { opacity: 0.35; }
+
+  .label {
+    font-size: 16.5px;
+    font-weight: 500;
+    color: var(--ink);
+    transition: color 0.25s ease, opacity 0.25s ease;
+  }
+
+  .item.done .label {
+    color: var(--ink-soft);
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-soft);
+    opacity: 0.75;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-top: 34px;
+    line-height: 1.5;
+  }
+
+  .reset {
+    display: block;
+    margin: 18px auto 0;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="greeting" id="greeting">Good morning</h1>
+  <p class="date" id="dateLine"></p>
+
+  <div class="arc-wrap">
+    <svg viewBox="0 0 200 120">
+      <path class="arc-bg" d="M 20 110 A 80 80 0 0 1 180 110" />
+      <path class="arc-fg" id="arcFg" d="M 20 110 A 80 80 0 0 1 180 110" />
+    </svg>
+    <div class="arc-label">
+      <div class="arc-count" id="arcCount">0/6</div>
+      <div class="arc-total" id="arcHint">done</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab" id="tabAM">Morning</button>
+    <button class="tab" id="tabPM">Evening</button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <button class="reset" id="resetBtn">Reset checklist</button>
+  <p class="footer-note">Tap an item to check it off. Nothing here is saved, so it starts fresh each time you open it.</p>
+</div>
+
+<script>
+  const routines = {
+    am: ["Brush teeth", "Facewash", "Vitamin C", "Eye cream", "Moisturizer", "Sunscreen"],
+    pm: ["Brush teeth", "Floss", "Facewash", "Retinol", "Eye cream", "Moisturizer"]
+  };
+
+  const state = {
+    mode: (new Date().getHours() < 12) ? 'am' : 'pm',
+    done: { am: new Array(routines.am.length).fill(false), pm: new Array(routines.pm.length).fill(false) }
+  };
+
+  const listEl = document.getElementById('list');
+  const tabAM = document.getElementById('tabAM');
+  const tabPM = document.getElementById('tabPM');
+  const greeting = document.getElementById('greeting');
+  const dateLine = document.getElementById('dateLine');
+  const arcFg = document.getElementById('arcFg');
+  const arcCount = document.getElementById('arcCount');
+  const arcHint = document.getElementById('arcHint');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const ARC_LENGTH = 251; // approx path length of the semicircle
+
+  const checkIcon = `<svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  dateLine.textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+  function render() {
+    document.body.classList.toggle('pm-active', state.mode === 'pm');
+    tabAM.classList.toggle('active', state.mode === 'am');
+    tabPM.classList.toggle('active', state.mode === 'pm');
+    greeting.textContent = state.mode === 'am' ? 'Good morning' : 'Good evening';
+
+    const items = routines[state.mode];
+    const doneArr = state.done[state.mode];
+
+    listEl.innerHTML = '';
+    items.forEach((label, i) => {
+      const row = document.createElement('div');
+      row.className = 'item' + (doneArr[i] ? ' done' : '');
+      row.innerHTML = `
+        <div class="step">${i + 1}</div>
+        <div class="check">${checkIcon}</div>
+        <div class="label">${label}</div>
+      `;
+      row.addEventListener('click', () => {
+        doneArr[i] = !doneArr[i];
+        render();
+      });
+      listEl.appendChild(row);
+    });
+
+    const total = items.length;
+    const completed = doneArr.filter(Boolean).length;
+    arcCount.textContent = `${completed}/${total}`;
+    arcHint.textContent = completed === total ? 'all set' : 'done';
+    const offset = ARC_LENGTH - (ARC_LENGTH * completed / total);
+    arcFg.style.strokeDasharray = ARC_LENGTH;
+    arcFg.style.strokeDashoffset = offset;
+  }
+
+  tabAM.addEventListener('click', () => { state.mode = 'am'; render(); });
+  tabPM.addEventListener('click', () => { state.mode = 'pm'; render(); });
+  resetBtn.addEventListener('click', () => {
+    state.done[state.mode] = new Array(routines[state.mode].length).fill(false);
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
